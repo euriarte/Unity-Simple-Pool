@@ -8,26 +8,74 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+[ExecuteInEditMode]
 public class PoolManager : MonoBehaviour {
+	public static Transform instanceT;
+	public static PoolManager instance;
 	/// <summary>
 	/// The pools.
 	/// </summary>
-	public Pool[] pools; 
+	public List<Pool> pools = new List<Pool>();
 	public static Dictionary<string,Pool> pool=new Dictionary<string, Pool>();
+	public static Dictionary<GameObject,string> dynamicIndex=new Dictionary<GameObject,string>();
 	/// <summary>
 	/// If true won't be destroyed on scene change
 	/// </summary>
 	public bool persistent;
+	public bool hideInHierarchy;
+	public bool populateOnStart;
+	public bool dynamic;
+	public int dynamicSize;
+	public int dynamicMax;
+	public float dynamicLifeTime;
+	public static bool started{get; private set;}
+
+	static Pool p;
+
 	void Start () {
+		if (instance==null){
+			instanceT=transform;
+			instance=this;
+		}
+		else Destroy(this);
 		if(persistent)DontDestroyOnLoad(gameObject);
 		foreach(Pool p in pools){
 			if(p.prefab!=null){
 				if(p.parent==null)p.parent=transform;
-				p.Instatiate();
+				p.Init();
 				if(!string.IsNullOrEmpty(p.name) && !pool.ContainsKey(p.name))pool.Add (p.name,p);
 			}
-			else Debug.LogWarning("The pool "+name+" doesn't have a prefab assigned, Skipped!");
+			else Debug.LogWarning("A pool in "+name+" doesn't have a prefab assigned, Skipped!");
 		}
+		started=true;
+	}
+#if UNITY_EDITOR
+	public void CreatePool(){
+		p = new Pool ();
+		pools.Add(p);
+	}
+#endif
+	public static bool CreatePool(string name, GameObject prefab, Transform parent, int size, int maxsize, float lifeTime, bool playOnSpawn){
+		if(prefab!=null){
+			if(string.IsNullOrEmpty(name))name=prefab.name;
+			if(pool.ContainsKey(name)){
+				if(pool[name].lifeTime==lifeTime && pool[name].prefab==prefab){
+					pool[name].size+=size;
+					pool[name].maxsize+=maxsize;
+				}
+				else Debug.LogError("There is a different pool with the same name, Aborting!");
+			}
+			else {
+				p = new Pool (prefab, parent, size, maxsize, lifeTime, playOnSpawn);
+				if(p.Init()){
+					pool.Add(name,p);
+#if UNITY_EDITOR
+					instance.pools.Add(p);
+#endif
+				}
+			}
+		}
+		return false;
 	}
 	/// <summary>
 	/// Spawn item from the specified poolName at transform.
@@ -45,5 +93,25 @@ public class PoolManager : MonoBehaviour {
 	/// <param name="rotation">Rotation.</param>
 	public static PoolItem Spawn(string poolName, Vector3 position,Quaternion rotation){
 		return (pool.ContainsKey(poolName))?pool[poolName].Spawn(position,rotation):null;
+	}
+	public static PoolItem Spawn(GameObject prefab, Vector3 position,Quaternion rotation){
+		if(instance.dynamic)	{
+			string poolName="";
+			if (dynamicIndex.ContainsKey(prefab))poolName=dynamicIndex[prefab];
+			else {
+				string sub="";
+				int counter=0;
+				while (string.IsNullOrEmpty(sub)){
+					if (!pool.ContainsKey(prefab.name+sub))sub=counter.ToString();
+					counter++;
+				}
+				CreatePool(poolName,prefab,instance.transform,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
+			}
+			return Spawn(poolName,position,rotation);
+		}
+#if UNITY_EDITOR
+		Debug.LogWarning("Dynamic pool is disabled");
+#endif
+		return null;
 	}
 }

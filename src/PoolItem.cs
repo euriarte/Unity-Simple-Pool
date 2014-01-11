@@ -11,20 +11,22 @@ using System.Collections.Generic;
 public class PoolItem : MonoBehaviour {
 	private Transform trans;
 	private bool canPlay=false;
-	private List<ParticleSystem> particles =new List<ParticleSystem>();
 	[HideInInspector]
-	public Pool parentPool;
-	void Awake(){
-		CanBePlayed();
+	private Pool parentPool;
+	public void Init(Pool parent){
+		parentPool=parent;
+		if(parent.playOnSpawn && !parent.isChecked)CanBePlayed();
 		trans=transform;
-		gameObject.SetActive(false);
+		if(PoolManager.instance.persistent)DontDestroyOnLoad(gameObject);
+		SetActive(false);
+
 	}
 	public void Enable(float lifeTime,Vector3 position,Quaternion rotation){
 		trans.position=position;
 		trans.rotation=rotation;
 		SetActive(true);
 		parentPool.pooledItems.Remove(this);
-		if (lifeTime!=0) StartCoroutine(DeSpawn(lifeTime));
+		if (lifeTime>0) StartCoroutine(DeSpawn(lifeTime));
 	}
 	void OnDisable(){
 		if(parentPool!=null)
@@ -39,26 +41,31 @@ public class PoolItem : MonoBehaviour {
 		yield return new WaitForSeconds(time);
 		SetActive(false);
 	}
-	void SetActive(bool active){
-		if(!active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop");
+	void SetActive(bool active){ 
+		if(!active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop",SendMessageOptions.DontRequireReceiver);
 		gameObject.SetActive(active);
-		if (active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play");
+		if (active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play",SendMessageOptions.DontRequireReceiver);
 	}
 	void CanBePlayed(){
-		int ppshl=GetComponentsInChildren<PoolParticleHelper>(true).Length;
 		int asl=GetComponentsInChildren<AudioSource>(true).Length;
-
-#if UNITY_EDITOR
 		int psl=0;
+		bool fix=false;
 		foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true)){
-			if (ps.transform.parent.particleSystem==null){
+			if (ps.transform.parent.particleSystem==null ){
 				psl++;
-				ps.gameObject.AddComponent<PoolParticleHelper>();
+				if (ps.gameObject.GetComponent<PoolParticleHelper>()==null){
+					ps.gameObject.AddComponent<PoolParticleHelper>();
+					fix=true;
+				}
 			}
 		}
-		if(psl!=ppshl) Debug.LogError("It seems that there are PaticleSystems misconfigured, please attach a PoolParticleHelper Component to their root. It has been corrected but for performance won't work in the standalone version");
+		if(fix){
+			parentPool.prefab=gameObject;
+#if UNITY_EDITOR
+			Debug.Log ("The prefab "+ name +" seems to be misconfigured tried to fix, ensure that the particle systems had a PoolParticleHelper component in their root");
 #endif
-		if(ppshl>0)canPlay=true;
-		if(asl>0)canPlay=true;
+		}
+		parentPool.isChecked=true;
+		if(psl>0 || asl>0)canPlay=true;
 	}
 }
