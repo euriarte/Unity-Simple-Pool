@@ -102,7 +102,10 @@ public class PoolManager : MonoBehaviour {
 				string sub="";
 				int counter=0;
 				while (string.IsNullOrEmpty(sub)){
-					if (!pool.ContainsKey(prefab.name+counter.ToString()))sub=counter.ToString();
+					if (!pool.ContainsKey(prefab.name+counter.ToString())){
+						sub=counter.ToString();
+						poolName=prefab.name+sub;
+					}
 					counter++;
 				}
 				CreatePool(poolName,prefab,instance.transform,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
