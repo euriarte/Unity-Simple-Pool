@@ -9,15 +9,12 @@ using System.Collections;
 
 public class PoolParticleHelper : MonoBehaviour {
 
-	// Use this for initialization
 	void Start () {
 		particleSystem.renderer.enabled = true;
 		particleSystem.time = 0;
 		particleSystem.Clear(true);
 		particleSystem.Play(true);
 	}
-	
-	// Update is called once per frame
 	void Stop () {
 		particleSystem.Stop();
 		particleSystem.time = 0;

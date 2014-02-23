@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Simple Object Pool 
 // Copyright © 2014 Enrique Uriarte
 // You are free to redistribute, use, or modify this code in commercial or
@@ -97,7 +97,15 @@ public class Pool {
 			else AddItem();
 		}
 		PoolItem pooled= pooledItems[0];
-		pooledItems[0].Enable(lifeTime,position,rotation);
+		pooledItems[0].Spawn(lifeTime,position,rotation);
 		return pooled;
+	}
+	public override bool Equals (object obj)
+	{
+		return (name==((Pool)obj).name && prefab==((Pool)obj).prefab && lifeTime==((Pool)obj).lifeTime)?true:false;
+	}
+	public override int GetHashCode ()
+	{
+		return name.GetHashCode ();
 	}
 }

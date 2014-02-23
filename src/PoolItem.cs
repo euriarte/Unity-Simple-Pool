@@ -21,12 +21,16 @@ public class PoolItem : MonoBehaviour {
 		SetActive(false);
 
 	}
-	public void Enable(float lifeTime,Vector3 position,Quaternion rotation){
+	public void Spawn(float lifeTime,Vector3 position,Quaternion rotation){
 		trans.position=position;
 		trans.rotation=rotation;
 		SetActive(true);
 		parentPool.pooledItems.Remove(this);
 		if (lifeTime>0) StartCoroutine(DeSpawn(lifeTime));
+	}
+	public void Recycle(){
+		if(parentPool==null)Destroy(gameObject);
+		else SetActive(false);
 	}
 	void OnDisable(){
 		if(parentPool!=null)
@@ -34,6 +38,9 @@ public class PoolItem : MonoBehaviour {
 	}
 	void OnDestroy(){
 		if(parentPool==null)return;
+#if UNITY_EDITOR
+		Debug.Log ("Avoid to destroy pooled items, use Recycle() instead");
+#endif
 		parentPool.items.Remove(this);
 		if(parentPool.pooledItems.Contains(this))parentPool.pooledItems.Remove(this);
 	}

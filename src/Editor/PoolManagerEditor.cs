@@ -42,7 +42,7 @@ public class PoolManagerEditor : Editor {
 			EditorGUILayout.BeginHorizontal();
 			p.name=EditorGUILayout.TextField(p.name,GUILayout.Width(80));
 			p.prefab=(GameObject)EditorGUILayout.ObjectField(p.prefab,typeof(GameObject),true);
-			if(GUILayout.Button((pm.hideInHierarchy && !p._hideInHierarchy)?"○":(p._hideInHierarchy)?"●":"","Label",GUILayout.Width(16))){
+			if(GUILayout.Button((pm.hideInHierarchy && !p._hideInHierarchy)?"✓":(p._hideInHierarchy)?"✔":"","Label",GUILayout.Width(16))){
 				p.hideInHierarchy=!p._hideInHierarchy;
 			}
 			if(GUILayout.Button( (p.playOnSpawn)?"►":"","Label",GUILayout.Width(16))){

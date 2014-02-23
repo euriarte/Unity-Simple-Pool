@@ -16,7 +16,9 @@ public class PoolManager : MonoBehaviour {
 	/// The pools.
 	/// </summary>
 	public List<Pool> pools = new List<Pool>();
+	public List<PoolGroup> poolGroups = new List<PoolGroup>();
 	public static Dictionary<string,Pool> pool=new Dictionary<string, Pool>();
+	public static Dictionary<string,PoolGroup> poolGroup=new Dictionary<string, PoolGroup>();
 	public static Dictionary<GameObject,string> dynamicIndex=new Dictionary<GameObject,string>();
 	/// <summary>
 	/// If true won't be destroyed on scene change
@@ -46,6 +48,9 @@ public class PoolManager : MonoBehaviour {
 				if(!string.IsNullOrEmpty(p.name) && !pool.ContainsKey(p.name))pool.Add (p.name,p);
 			}
 			else Debug.LogWarning("A pool in "+name+" doesn't have a prefab assigned, Skipped!");
+		}
+		foreach(PoolGroup pg in poolGroups){
+			poolGroup.Add(pg.name,pg);	
 		}
 		started=true;
 	}
@@ -116,5 +121,23 @@ public class PoolManager : MonoBehaviour {
 		Debug.LogWarning("Dynamic pool is disabled");
 #endif
 		return null;
+	}
+	public static PoolItem[] SpawnGroup(string groupName, Transform transform){
+		return SpawnGroup(groupName, transform.position,transform.rotation);
+	}
+	public static PoolItem[] SpawnGroup(string groupName, Vector3 position, Quaternion rotation){
+		return (poolGroup.ContainsKey(groupName))?poolGroup[groupName].Spawn(position,rotation):null;
+	}
+	public static PoolItem SpawnRandom(string groupName, Transform transform){
+		return SpawnRandom(groupName,transform.position,transform.rotation);		
+	}
+	public static PoolItem SpawnRandom(string groupname,Vector3 position, Quaternion rotation){
+		return (poolGroup.ContainsKey(groupname))?poolGroup[groupname].SpawnRandom(position,rotation):null;
+	}
+	public static PoolItem[] SpawnSet(string groupName,Transform transform){
+		return SpawnSet(groupName,transform.position,transform.rotation);
+	}
+	public static PoolItem[] SpawnSet(string groupName, Vector3 position, Quaternion rotation){
+		return (poolGroup.ContainsKey(groupName))?poolGroup[groupName].SpawnSet(position,rotation):null;
 	}
 }
