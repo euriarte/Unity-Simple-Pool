@@ -8,7 +8,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-[ExecuteInEditMode]
+
 public class PoolManager : MonoBehaviour {
 	public static Transform instanceT;
 	public static PoolManager instance;
@@ -50,16 +50,22 @@ public class PoolManager : MonoBehaviour {
 			else Debug.LogWarning("A pool in "+name+" doesn't have a prefab assigned, Skipped!");
 		}
 		foreach(PoolGroup pg in poolGroups){
-			poolGroup.Add(pg.name,pg);	
+			if(!string.IsNullOrEmpty(pg.name)){
+				poolGroup.Add(pg.name,pg);	
+				pg.Init();
+			}
 		}
 		started=true;
 	}
-#if UNITY_EDITOR
+
 	public void CreatePool(){
 		p = new Pool ();
 		pools.Add(p);
 	}
-#endif
+	public void CreatePoolGroup(){
+		PoolGroup pg = new PoolGroup();
+		poolGroups.Add(pg);
+	}
 	public static bool CreatePool(string name, GameObject prefab, Transform parent, int size, int maxsize, float lifeTime, bool playOnSpawn){
 		if(prefab!=null){
 			if(string.IsNullOrEmpty(name))name=prefab.name;

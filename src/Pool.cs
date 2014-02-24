@@ -12,6 +12,7 @@ using System.Collections.Generic;
 public class Pool {
 	[HideInInspector]
 	public bool isChecked;
+	public bool open;
 	public string name="";
 	/// <summary>
 	/// Object where the item will be pooled
@@ -74,9 +75,11 @@ public class Pool {
 		isChecked=false;
 		if(prefab==null)return false;
 		if(string.IsNullOrEmpty(name))name=prefab.name;
+		if(parent==null)parent=PoolManager.instanceT;
 		if(PoolManager.instance.populateOnStart && !PoolManager.started){
 			while(items.Count<size)	AddItem();
 		}
+		
 		return true;
 	}
 	public void AddItem(){

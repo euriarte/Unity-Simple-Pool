@@ -5,13 +5,20 @@ using System.Collections.Generic;
 
 [CustomEditor( typeof( PoolManager) )]
 public class PoolManagerEditor : Editor {
-	Pool remove;
-
+	Pool rem;
+	PoolGroup remg;
+	PoolManager pm;
+	Color warningColor;
 
 	public override void OnInspectorGUI () {
 		EditorStyles.textField.wordWrap = true;
-		PoolManager pm = (PoolManager)target;
-		if(remove!=null)pm.pools.Remove(remove);
+		pm = (PoolManager)target;
+		if(PoolManager.instance==null){
+			PoolManager.instance=pm;
+			PoolManager.instanceT=pm.transform;
+		}
+		
+		pm.populateOnStart=EditorGUILayout.Toggle("Populate on Start",pm.populateOnStart);
 		pm.hideInHierarchy=EditorGUILayout.Toggle("Hide in Hierarchy",pm.hideInHierarchy);
 		pm.persistent=EditorGUILayout.Toggle("Dont Destroy On Load",pm.persistent);
 		pm.dynamic=EditorGUILayout.Toggle("Dynamic Pool",pm.dynamic);
@@ -28,39 +35,132 @@ public class PoolManagerEditor : Editor {
 			EditorGUILayout.EndVertical();
 			EditorGUILayout.EndHorizontal();
 		}
+		EditorGUILayout.BeginVertical("Box");
 		EditorGUILayout.BeginHorizontal();
-		EditorGUILayout.LabelField("Name",GUILayout.Width(80));
-		EditorGUILayout.LabelField("Prefab",GUILayout.Width(Screen.width-283));
-		EditorGUILayout.LabelField(new GUIContent("H","Hide In Herarchy"),GUILayout.Width(16));
-		EditorGUILayout.LabelField(new GUIContent("►","Play On Spawn"),GUILayout.Width(16));
-		EditorGUILayout.LabelField(new GUIContent("s","Size"),GUILayout.Width(25));
-		EditorGUILayout.LabelField(new GUIContent("max","Max size"),GUILayout.Width(35));
-		EditorGUILayout.LabelField(new GUIContent("L","Life Time"),GUILayout.Width(30));
-		EditorGUILayout.LabelField(new GUIContent("×","Delete"),GUILayout.Width(14));
-		EditorGUILayout.EndHorizontal();
-		foreach(Pool p in pm.pools){
-			EditorGUILayout.BeginHorizontal();
-			p.name=EditorGUILayout.TextField(p.name,GUILayout.Width(80));
-			p.prefab=(GameObject)EditorGUILayout.ObjectField(p.prefab,typeof(GameObject),true);
-			if(GUILayout.Button((pm.hideInHierarchy && !p._hideInHierarchy)?"✓":(p._hideInHierarchy)?"✔":"","Label",GUILayout.Width(16))){
-				p.hideInHierarchy=!p._hideInHierarchy;
-			}
-			if(GUILayout.Button( (p.playOnSpawn)?"►":"","Label",GUILayout.Width(16))){
-				p.playOnSpawn=!p.playOnSpawn;
-			}
-			p.size=EditorGUILayout.IntField(p.size,GUILayout.Width(25));
-			p.maxsize=EditorGUILayout.IntField(p.maxsize,GUILayout.Width(35));
-			p.lifeTime=EditorGUILayout.FloatField(p.lifeTime,GUILayout.Width(30));
-			if(GUILayout.Button("×",GUILayout.Width(19))){
-				remove=p;
-			}
-			EditorGUILayout.EndHorizontal();
-		}
-		EditorGUILayout.BeginHorizontal();
-		if(GUILayout.Button("Add New Pool")){
+		EditorGUILayout.LabelField("Pools");
+		if(GUILayout.Button("Add New",GUILayout.Width(70))){
 			pm.CreatePool();
 		}
 		EditorGUILayout.EndHorizontal();
+		foreach(Pool p in pm.pools){
+			Pool (p);
+		}
+		EditorGUILayout.EndVertical();
+		if(rem!=null){
+			pm.pools.Remove(rem);
+			rem=null;
+		}
 
+		EditorGUILayout.BeginVertical("Box");
+		EditorGUILayout.BeginHorizontal();
+		EditorGUILayout.LabelField("Pool Groups");
+		if(GUILayout.Button("Add New",GUILayout.Width(70))){
+			pm.CreatePoolGroup();
+		}
+		EditorGUILayout.EndHorizontal();
+		foreach(PoolGroup pg in pm.poolGroups){
+			PoolGroup (pg);
+		}
+		EditorGUILayout.EndVertical();
+		if(remg!=null){
+			pm.poolGroups.Remove(remg);
+			remg=null;
+		}
+	}
+	
+	void PoolGroup(PoolGroup pg){
+		EditorGUILayout.BeginVertical("Box");
+		EditorGUILayout.BeginHorizontal();
+		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){}
+		if(GUILayout.Button((pg.open)?"▲":"▼","Label",GUILayout.Width(14)))pg.open=!pg.open;
+		EditorGUILayout.LabelField("Group Name:",GUILayout.Width(80));
+		pg.name=EditorGUILayout.TextField(pg.name);
+		if(GUILayout.Button("×",GUILayout.Width(19))){
+			remg=pg;
+		}
+		EditorGUILayout.EndHorizontal();
+		if(pg.open){
+			EditorGUILayout.BeginVertical("Box");
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Pools");
+			if(GUILayout.Button("Add New",GUILayout.Width(70))){
+				pg.pools.Add(new Pool());
+			}
+			EditorGUILayout.EndHorizontal();
+			foreach(Pool p in pg.pools)Pool (p);
+			if(rem!=null){
+				pg.pools.Remove(rem);
+				rem=null;
+			}
+			EditorGUILayout.EndVertical();
+			EditorGUILayout.BeginVertical("Box");
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Sets");
+			if(GUILayout.Button("Add New",GUILayout.Width(70))){
+				pg.sets.Add(new PoolGroup());
+			}
+			EditorGUILayout.EndHorizontal();
+			foreach(PoolGroup poolgroup in pg.sets)PoolGroup(poolgroup);
+			if(remg!=null && pg.sets.Contains(remg)){
+				pg.sets.Remove(remg);
+				remg=null;
+			}
+			EditorGUILayout.EndVertical();
+		}
+		EditorGUILayout.EndVertical();
+		
+	}
+	void Pool(Pool p){
+		GUI.backgroundColor=(p.prefab==null)?new Color(0.86F,0.47F,0.2F,1):new Color(0.5F,0.85F,0.5F,1);
+		EditorGUILayout.BeginVertical("Box");
+		EditorGUILayout.BeginHorizontal();
+		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){}
+		if(GUILayout.Button((p.open)?"▲":"▼","Label",GUILayout.Width(14)))p.open=!p.open;
+		p.name=EditorGUILayout.TextField(p.name);
+		if (!p.open){
+			if(GUILayout.Button((pm.hideInHierarchy && !p._hideInHierarchy)?"✓":(p._hideInHierarchy)?"✔":"","Label",GUILayout.Width(14))){
+				p.hideInHierarchy=!p._hideInHierarchy;
+			}
+			if(GUILayout.Button( (p.playOnSpawn)?"►":"","Label",GUILayout.Width(14))){
+				p.playOnSpawn=!p.playOnSpawn;
+			}
+			p.size=EditorGUILayout.IntField(p.size,GUILayout.Width(25));
+			p.maxsize=EditorGUILayout.IntField(p.maxsize,GUILayout.Width(25));
+			p.lifeTime=EditorGUILayout.FloatField(p.lifeTime,GUILayout.Width(25));
+			
+		}
+		if(GUILayout.Button("×",GUILayout.Width(19))){
+			rem=p;
+		}
+		EditorGUILayout.EndHorizontal();
+		Event evt = Event.current;
+		Rect drop_area = GUILayoutUtility.GetLastRect();
+		switch (evt.type) {
+		case EventType.DragUpdated:
+		case EventType.DragPerform:
+			if (drop_area.Contains (evt.mousePosition)){
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+				if (evt.type == EventType.DragPerform) {
+					DragAndDrop.AcceptDrag ();
+					p.prefab=(GameObject)DragAndDrop.objectReferences[0];
+					p.name=p.prefab.name;
+				}
+			}
+		break;
+		} 
+		if(p.open){
+			EditorGUILayout.BeginVertical("Box");
+			p.name=EditorGUILayout.TextField("Pool Name",p.name);
+			p.prefab=(GameObject)EditorGUILayout.ObjectField("Item",p.prefab,typeof(GameObject),true);
+		
+			p.hideInHierarchy=EditorGUILayout.Toggle("Hide In Hierarchy",p.hideInHierarchy);
+			p.playOnSpawn=EditorGUILayout.Toggle("Play on Spawn",p.playOnSpawn);
+			p.size=EditorGUILayout.IntField("Pool Size",p.size);
+			p.maxsize=EditorGUILayout.IntField("Pool Max Size",p.maxsize);
+			p.lifeTime=EditorGUILayout.FloatField("Item LifeTime",p.lifeTime);
+			EditorGUILayout.EndVertical();
+		}
+		EditorGUILayout.EndVertical();
+		GUI.backgroundColor=Color.white;
 	}
 }

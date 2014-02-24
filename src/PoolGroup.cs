@@ -1,4 +1,4 @@
-﻿//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Simple Object Pool 
 // Copyright © 2014 Enrique Uriarte
 // You are free to redistribute, use, or modify this code in commercial or
@@ -8,15 +8,24 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
 public class PoolGroup{
 	
 	public string name;
+	public bool open;
 	public List<Pool> pools=new List<Pool>();
 	public List<PoolGroup> sets=new List<PoolGroup>();
 	
 	public PoolGroup(){}	
 	public PoolGroup(string name){
 		this.name=name;	
+	}
+	public void Init(){
+		for(int i =pools.Count-1;i>=0;i--){
+			if (pools[i].prefab!=null)pools[i].Init();
+			else pools.RemoveAt(i);
+		}
+		foreach(PoolGroup set in sets)set.Init();
 	}
 	
 	public bool Add(Pool pool){
