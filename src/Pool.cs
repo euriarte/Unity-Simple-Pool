@@ -38,8 +38,7 @@ public class Pool {
 	/// The life time.
 	/// </summary>
 	public float lifeTime=0;
-	[SerializeField]
-	public bool _hideInHierarchy{get; private set;}
+	public bool _hideInHierarchy;
 
 	/// <summary>
 	/// If true the items won't be displayed in the hierarchy

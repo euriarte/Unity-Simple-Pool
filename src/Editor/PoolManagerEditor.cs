@@ -69,7 +69,9 @@ public class PoolManagerEditor : Editor {
 	}
 	
 	void PoolGroup(PoolGroup pg){
+		GUI.backgroundColor=(string.IsNullOrEmpty(pg.name)&&PoolManager.instance.poolGroups.Contains(pg))?new Color(0.7F,0.1F,0.1F,0.8F):new Color(0.6F,0.6F,0.9F,0.8F);
 		EditorGUILayout.BeginVertical("Box");
+		GUI.backgroundColor=Color.white;
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){}
 		if(GUILayout.Button((pg.open)?"▲":"▼","Label",GUILayout.Width(14)))pg.open=!pg.open;

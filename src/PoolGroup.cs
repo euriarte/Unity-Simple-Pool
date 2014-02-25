@@ -25,7 +25,7 @@ public class PoolGroup{
 			if (pools[i].prefab!=null)pools[i].Init();
 			else pools.RemoveAt(i);
 		}
-		foreach(PoolGroup set in sets)set.Init();
+		foreach(PoolGroup each in sets)each.Init();
 	}
 	
 	public bool Add(Pool pool){

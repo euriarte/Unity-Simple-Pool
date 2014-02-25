@@ -35,27 +35,34 @@ public class PoolManager : MonoBehaviour {
 	static Pool p;
 
 	void Start () {
+		bool destroy=false;
 		if (instance==null){
 			instanceT=transform;
 			instance=this;
+			if(persistent)DontDestroyOnLoad(gameObject);
 		}
-		else Destroy(this);
-		if(persistent)DontDestroyOnLoad(gameObject);
+		else destroy=true;
 		foreach(Pool p in pools){
 			if(p.prefab!=null){
 				if(p.parent==null)p.parent=transform;
 				p.Init();
 				if(!string.IsNullOrEmpty(p.name) && !pool.ContainsKey(p.name))pool.Add (p.name,p);
 			}
-			else Debug.LogWarning("A pool in "+name+" doesn't have a prefab assigned, Skipped!");
+			else Debug.LogWarning("A Pool in "+name+" doesn't have a prefab assigned, Skipped!");
 		}
 		foreach(PoolGroup pg in poolGroups){
 			if(!string.IsNullOrEmpty(pg.name)){
-				poolGroup.Add(pg.name,pg);	
-				pg.Init();
+				if(!poolGroup.ContainsKey(pg.name)){
+					poolGroup.Add(pg.name,pg);	
+					pg.Init();
+				}
+				else Debug.LogWarning("Already exist a PoolGroup named "+pg.name);
 			}
+			else Debug.LogWarning ("A PoolGroup doesn't have a name assigned, Skipped!");
+
 		}
-		started=true;
+		if (destroy)Destroy(this);
+		else started=true;
 	}
 
 	public void CreatePool(){
