@@ -26,6 +26,7 @@ public class Pool {
 	public List<PoolItem> items =new List<PoolItem>();
 //	[HideInInspector]
 	public List<PoolItem> pooledItems =new List<PoolItem>();
+	public List<PoolItem> spawnedItems =new List<PoolItem>();
 	/// <summary>
 	/// Default number of pooled items
 	/// </summary>
@@ -39,6 +40,8 @@ public class Pool {
 	/// </summary>
 	public float lifeTime=0;
 	public bool _hideInHierarchy;
+	public LayerMask layer;
+	
 
 	/// <summary>
 	/// If true the items won't be displayed in the hierarchy
@@ -46,6 +49,11 @@ public class Pool {
 	public bool hideInHierarchy{
 		get{return (PoolManager.instance.hideInHierarchy)?true:_hideInHierarchy;}
 		set{_hideInHierarchy=value;}
+	}
+	public bool _recyclable;
+	public bool recyclable {
+		get{return (PoolManager.instance.recyclable)?true:_recyclable;}
+		set{_recyclable=value;}	
 	}
 	public bool playOnSpawn=false;
 	#region Constructors
@@ -81,6 +89,14 @@ public class Pool {
 		
 		return true;
 	}
+	public void ReParent(Transform transform){
+		parent=transform;
+		foreach(PoolItem p in items)ReParent (transform);
+	}
+	public void ReParent(){
+		parent=PoolManager.instanceT;
+		foreach(PoolItem p in items)ReParent();
+	}
 	public void AddItem(){
 		if(items.Count<maxsize||maxsize<1||items.Count<size){
 			GameObject go = (GameObject)MonoBehaviour.Instantiate(prefab);
@@ -95,7 +111,13 @@ public class Pool {
 	}
 	public PoolItem Spawn (Vector3 position, Quaternion rotation){
 		if (pooledItems.Count<1 || items.Count<size){
-			if(items.Count>=maxsize && maxsize>1)	return null;
+			if(items.Count>=maxsize && maxsize>1)	{
+				if(recyclable){
+					pooledItems.Add (spawnedItems[0]);
+					spawnedItems.RemoveAt(0);
+				}
+				else return null;
+			}
 			else AddItem();
 		}
 		PoolItem pooled= pooledItems[0];

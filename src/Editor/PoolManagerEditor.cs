@@ -19,6 +19,7 @@ public class PoolManagerEditor : Editor {
 		}
 		
 		pm.populateOnStart=EditorGUILayout.Toggle("Populate on Start",pm.populateOnStart);
+		pm.recyclable=EditorGUILayout.Toggle("Recyclable",pm.recyclable);
 		pm.hideInHierarchy=EditorGUILayout.Toggle("Hide in Hierarchy",pm.hideInHierarchy);
 		pm.persistent=EditorGUILayout.Toggle("Dont Destroy On Load",pm.persistent);
 		pm.dynamic=EditorGUILayout.Toggle("Dynamic Pool",pm.dynamic);
@@ -120,6 +121,9 @@ public class PoolManagerEditor : Editor {
 		if(GUILayout.Button((p.open)?"▲":"▼","Label",GUILayout.Width(14)))p.open=!p.open;
 		p.name=EditorGUILayout.TextField(p.name);
 		if (!p.open){
+			if(GUILayout.Button((pm.recyclable && !p._recyclable)?"○":(p._recyclable)?"●":"","Label",GUILayout.Width(14))){
+				p.recyclable=!p._recyclable;
+			}
 			if(GUILayout.Button((pm.hideInHierarchy && !p._hideInHierarchy)?"✓":(p._hideInHierarchy)?"✔":"","Label",GUILayout.Width(14))){
 				p.hideInHierarchy=!p._hideInHierarchy;
 			}
@@ -146,6 +150,7 @@ public class PoolManagerEditor : Editor {
 					DragAndDrop.AcceptDrag ();
 					p.prefab=(GameObject)DragAndDrop.objectReferences[0];
 					p.name=p.prefab.name;
+					p.layer=p.prefab.layer;
 				}
 			}
 		break;
@@ -154,12 +159,14 @@ public class PoolManagerEditor : Editor {
 			EditorGUILayout.BeginVertical("Box");
 			p.name=EditorGUILayout.TextField("Pool Name",p.name);
 			p.prefab=(GameObject)EditorGUILayout.ObjectField("Item",p.prefab,typeof(GameObject),true);
-		
-			p.hideInHierarchy=EditorGUILayout.Toggle("Hide In Hierarchy",p.hideInHierarchy);
+			p.recyclable=EditorGUILayout.Toggle("Recyclable",p._recyclable);
+			p.hideInHierarchy=EditorGUILayout.Toggle("Hide In Hierarchy",p._hideInHierarchy);
 			p.playOnSpawn=EditorGUILayout.Toggle("Play on Spawn",p.playOnSpawn);
 			p.size=EditorGUILayout.IntField("Pool Size",p.size);
 			p.maxsize=EditorGUILayout.IntField("Pool Max Size",p.maxsize);
 			p.lifeTime=EditorGUILayout.FloatField("Item LifeTime",p.lifeTime);
+			p.layer=(int)EditorGUILayout.LayerField("Layer",p.layer);
+			p.parent=(Transform)EditorGUILayout.ObjectField("Default Parent",p.parent,typeof(Transform),true);
 			EditorGUILayout.EndVertical();
 		}
 		EditorGUILayout.EndVertical();

@@ -22,7 +22,7 @@ public class PoolItemCustom : PoolItem {
 		rigidbody.AddForce(trans.forward*50,ForceMode.VelocityChange);
 		if(!string.IsNullOrEmpty(trailName)){
 			child= PoolManager.Spawn(trailName,trans);
-			child.trans.parent=trans;
+			child.ReParent(trans);
 		}
 	}
 	public override void Recycle (){

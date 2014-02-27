@@ -18,6 +18,7 @@ public class PoolItem : MonoBehaviour {
 		if(parent.playOnSpawn && !parent.isChecked)CanBePlayed();
 		trans=transform;
 		if(PoolManager.instance.persistent)DontDestroyOnLoad(gameObject);
+		gameObject.layer=parent.layer;
 		SetActive(false);
 
 
@@ -25,11 +26,18 @@ public class PoolItem : MonoBehaviour {
 	public void ReParent(){
 		trans.parent=(parentPool.parent!=null)?parentPool.parent:PoolManager.instanceT;
 	}
+	public void ReParent(Transform transform){
+		trans.parent=transform;
+	}
 	public virtual void Spawn(float lifeTime,Vector3 position,Quaternion rotation){
 		trans.position=position;
 		trans.rotation=rotation;
 		SetActive(true);
 		parentPool.pooledItems.Remove(this);
+		if(parentPool.recyclable){
+			parentPool.spawnedItems.Add(this);
+			StopAllCoroutines();
+		}
 		if (lifeTime>0) StartCoroutine(DeSpawn(lifeTime));
 	}
 	public virtual void Recycle(){

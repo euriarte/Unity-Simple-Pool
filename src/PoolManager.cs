@@ -25,6 +25,7 @@ public class PoolManager : MonoBehaviour {
 	/// </summary>
 	public bool persistent;
 	public bool hideInHierarchy;
+	public bool recyclable;
 	public bool populateOnStart;
 	public bool dynamic;
 	public int dynamicSize;
