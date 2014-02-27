@@ -74,7 +74,9 @@ public class PoolManagerEditor : Editor {
 		EditorGUILayout.BeginVertical("Box");
 		GUI.backgroundColor=Color.white;
 		EditorGUILayout.BeginHorizontal();
-		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){}
+		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
+			//PoolManager.SpawnGroup(pg.name,PoolManager.instanceT);
+		}
 		if(GUILayout.Button((pg.open)?"▲":"▼","Label",GUILayout.Width(14)))pg.open=!pg.open;
 		EditorGUILayout.LabelField("Group Name:",GUILayout.Width(80));
 		pg.name=EditorGUILayout.TextField(pg.name);
@@ -83,6 +85,10 @@ public class PoolManagerEditor : Editor {
 		}
 		EditorGUILayout.EndHorizontal();
 		if(pg.open){
+			EditorGUILayout.BeginHorizontal();
+			pg.propagateLayer=EditorGUILayout.Toggle("Propagate Layer",pg.propagateLayer);
+			pg.layer=(int)EditorGUILayout.LayerField(pg.layer);
+			EditorGUILayout.EndHorizontal();
 			EditorGUILayout.BeginVertical("Box");
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.LabelField("Pools");
@@ -117,7 +123,9 @@ public class PoolManagerEditor : Editor {
 		GUI.backgroundColor=(p.prefab==null)?new Color(0.86F,0.47F,0.2F,1):new Color(0.5F,0.85F,0.5F,1);
 		EditorGUILayout.BeginVertical("Box");
 		EditorGUILayout.BeginHorizontal();
-		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){}
+		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
+			//PoolManager.Spawn(p.name,PoolManager.instanceT);
+		}
 		if(GUILayout.Button((p.open)?"▲":"▼","Label",GUILayout.Width(14)))p.open=!p.open;
 		p.name=EditorGUILayout.TextField(p.name);
 		if (!p.open){

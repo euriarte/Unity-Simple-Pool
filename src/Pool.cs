@@ -97,6 +97,11 @@ public class Pool {
 		parent=PoolManager.instanceT;
 		foreach(PoolItem p in items)ReParent();
 	}
+	public void Recicle(PoolItem poolItem){
+		if(!items.Contains(poolItem))return;
+		if(!pooledItems.Contains(poolItem)) pooledItems.Add(poolItem);
+		if(spawnedItems.Contains(poolItem)) spawnedItems.Remove(poolItem);
+	}
 	public void AddItem(){
 		if(items.Count<maxsize||maxsize<1||items.Count<size){
 			GameObject go = (GameObject)MonoBehaviour.Instantiate(prefab);
@@ -113,8 +118,7 @@ public class Pool {
 		if (pooledItems.Count<1 || items.Count<size){
 			if(items.Count>=maxsize && maxsize>1)	{
 				if(recyclable){
-					pooledItems.Add (spawnedItems[0]);
-					spawnedItems.RemoveAt(0);
+					spawnedItems[0].Recycle();
 				}
 				else return null;
 			}

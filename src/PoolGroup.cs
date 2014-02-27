@@ -15,6 +15,8 @@ public class PoolGroup{
 	public bool open;
 	public List<Pool> pools=new List<Pool>();
 	public List<PoolGroup> sets=new List<PoolGroup>();
+	public bool propagateLayer;
+	public LayerMask layer;
 	
 	public PoolGroup(){}	
 	public PoolGroup(string name){
@@ -22,10 +24,16 @@ public class PoolGroup{
 	}
 	public void Init(){
 		for(int i =pools.Count-1;i>=0;i--){
-			if (pools[i].prefab!=null)pools[i].Init();
+			if (pools[i].prefab!=null){
+				if(propagateLayer)pools[i].layer=layer;
+				pools[i].Init();
+			}
 			else pools.RemoveAt(i);
 		}
-		foreach(PoolGroup each in sets)each.Init();
+		foreach(PoolGroup each in sets){
+			if(propagateLayer)each.layer=layer;
+			each.Init();
+		}
 	}
 	
 	public bool Add(Pool pool){
