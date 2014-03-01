@@ -26,7 +26,10 @@ public class PoolGroup{
 		for(int i =pools.Count-1;i>=0;i--){
 			if (pools[i].prefab!=null){
 				if(propagateLayer)pools[i].layer=layer;
-				pools[i].Init();
+				if(PoolManager.instance.stackPools && PoolManager.pool.ContainsKey(pools[i].name) && pools[i].Equals(PoolManager.pool[pools[i].name])){
+					pools[i]=PoolManager.pool[pools[i].name];	
+				}
+				else pools[i].Init();
 			}
 			else pools.RemoveAt(i);
 		}

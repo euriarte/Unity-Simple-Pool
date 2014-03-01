@@ -124,9 +124,12 @@ public class Pool {
 			}
 			else AddItem();
 		}
-		PoolItem pooled= pooledItems[0];
-		pooledItems[0].Spawn(lifeTime,position,rotation);
-		return pooled;
+		if(pooledItems[0]!=null){
+			PoolItem pooled= pooledItems[0];
+			pooledItems[0].Spawn(lifeTime,position,rotation);
+			return pooled;
+		}
+		return null;
 	}
 	public override bool Equals (object obj)
 	{

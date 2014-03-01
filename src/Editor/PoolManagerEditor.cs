@@ -22,6 +22,7 @@ public class PoolManagerEditor : Editor {
 		pm.recyclable=EditorGUILayout.Toggle("Recyclable",pm.recyclable);
 		pm.hideInHierarchy=EditorGUILayout.Toggle("Hide in Hierarchy",pm.hideInHierarchy);
 		pm.persistent=EditorGUILayout.Toggle("Dont Destroy On Load",pm.persistent);
+		pm.stackPools=EditorGUILayout.Toggle("Stack Pools",pm.stackPools);
 		pm.dynamic=EditorGUILayout.Toggle("Dynamic Pool",pm.dynamic);
 		if(pm.dynamic){
 			EditorGUILayout.BeginHorizontal();
@@ -75,7 +76,7 @@ public class PoolManagerEditor : Editor {
 		GUI.backgroundColor=Color.white;
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
-			//PoolManager.SpawnGroup(pg.name,PoolManager.instanceT);
+			PoolManager.SpawnGroup(pg.name,PoolManager.instanceT);
 		}
 		if(GUILayout.Button((pg.open)?"▲":"▼","Label",GUILayout.Width(14)))pg.open=!pg.open;
 		EditorGUILayout.LabelField("Group Name:",GUILayout.Width(80));
@@ -124,7 +125,7 @@ public class PoolManagerEditor : Editor {
 		EditorGUILayout.BeginVertical("Box");
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
-			//PoolManager.Spawn(p.name,PoolManager.instanceT);
+			PoolManager.Spawn(p.name,PoolManager.instanceT);
 		}
 		if(GUILayout.Button((p.open)?"▲":"▼","Label",GUILayout.Width(14)))p.open=!p.open;
 		p.name=EditorGUILayout.TextField(p.name);

@@ -31,6 +31,7 @@ public class PoolManager : MonoBehaviour {
 	public int dynamicSize;
 	public int dynamicMax;
 	public float dynamicLifeTime;
+	public bool stackPools;
 	public static bool started{get; private set;}
 
 	static Pool p;
