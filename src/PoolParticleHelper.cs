@@ -9,7 +9,8 @@ using System.Collections;
 
 public class PoolParticleHelper : MonoBehaviour {
 
-	void Start () {
+	void Play () {
+		Debug.Log("Starting");
 		particleSystem.renderer.enabled = true;
 		particleSystem.time = 0;
 		particleSystem.Clear(true);

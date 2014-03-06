@@ -11,7 +11,7 @@ using System.Collections.Generic;
 public class PoolItem : MonoBehaviour {
 	[HideInInspector]
 	public Transform trans;
-	private bool canPlay=false;
+	public bool canPlay=false;
 	private Pool parentPool;
 	public virtual void Init(Pool parent){
 		parentPool=parent;
@@ -62,9 +62,10 @@ public class PoolItem : MonoBehaviour {
 		SetActive(false);
 	}
 	protected virtual void SetActive(bool active){ 
+		Debug.Log(active+"__"+canPlay+"__"+parentPool.playOnSpawn);
 		if(!active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop",SendMessageOptions.DontRequireReceiver);
 		gameObject.SetActive(active);
-		if (active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play",SendMessageOptions.DontRequireReceiver);
+		if (active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play");
 	}
 	void CanBePlayed(){
 		int asl=GetComponentsInChildren<AudioSource>(true).Length;
@@ -85,7 +86,7 @@ public class PoolItem : MonoBehaviour {
 			Debug.Log ("The prefab "+ name +" seems to be misconfigured tried to fix, ensure that the particle systems had a PoolParticleHelper component in their root");
 #endif
 		}
-		parentPool.isChecked=true;
+		//parentPool.isChecked=true;
 		if(psl>0 || asl>0)canPlay=true;
 	}
 }

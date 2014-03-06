@@ -9,8 +9,29 @@ public class PoolManagerEditor : Editor {
 	PoolGroup remg;
 	PoolManager pm;
 	Color warningColor;
+	List<Pool> tempaddplace;
+	List<Pool> tempadd=new List<Pool>();
 
 	public override void OnInspectorGUI () {
+		if (tempadd.Count>0){
+			foreach(Pool pool in tempadd){
+				if(tempaddplace.Contains(pool)){
+					int option=EditorUtility.DisplayDialogComplex("Already exist a similar pool ["+pool.name+"]","There is a pool for "+pool.name+" what do you want to do? ","Create New", "Increase Limit", "Skip");
+					switch(option){
+					case 0:	
+						pool.name+="-"+tempaddplace.Count.ToString();
+						tempaddplace.Add(pool);
+						break;
+					case 1:
+						tempaddplace[tempaddplace.IndexOf(pool)].size+=pool.size;
+						tempaddplace[tempaddplace.IndexOf(pool)].maxsize+=pool.maxsize;
+						break;
+					}
+				}
+				else tempaddplace.Add(pool);
+			}
+			tempadd.Clear();
+		}
 		EditorStyles.textField.wordWrap = true;
 		pm = (PoolManager)target;
 		if(PoolManager.instance==null){
@@ -19,6 +40,7 @@ public class PoolManagerEditor : Editor {
 		}
 		
 		pm.populateOnStart=EditorGUILayout.Toggle("Populate on Start",pm.populateOnStart);
+		pm.autoConfig=EditorGUILayout.Toggle("Auto Config Effects",pm.autoConfig);
 		pm.recyclable=EditorGUILayout.Toggle("Recyclable",pm.recyclable);
 		pm.hideInHierarchy=EditorGUILayout.Toggle("Hide in Hierarchy",pm.hideInHierarchy);
 		pm.persistent=EditorGUILayout.Toggle("Dont Destroy On Load",pm.persistent);
@@ -44,6 +66,7 @@ public class PoolManagerEditor : Editor {
 			pm.CreatePool();
 		}
 		EditorGUILayout.EndHorizontal();
+		DropInPools(null,GUILayoutUtility.GetLastRect(),Event.current);
 		foreach(Pool p in pm.pools){
 			Pool (p);
 		}
@@ -73,15 +96,15 @@ public class PoolManagerEditor : Editor {
 	void PoolGroup(PoolGroup pg){
 		GUI.backgroundColor=(string.IsNullOrEmpty(pg.name)&&PoolManager.instance.poolGroups.Contains(pg))?new Color(0.7F,0.1F,0.1F,0.8F):new Color(0.6F,0.6F,0.9F,0.8F);
 		EditorGUILayout.BeginVertical("Box");
-		GUI.backgroundColor=Color.white;
+		GUI.backgroundColor=new Color(1,1,1,0.7F);
 		EditorGUILayout.BeginHorizontal();
-		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
+		if(GUILayout.Button(new GUIContent("≡","Drag\nSpawn"),"Label",GUILayout.Width(14))){
 			PoolManager.SpawnGroup(pg.name,PoolManager.instanceT);
 		}
-		if(GUILayout.Button((pg.open)?"▲":"▼","Label",GUILayout.Width(14)))pg.open=!pg.open;
+		if(GUILayout.Button((pg.open)?new GUIContent("▲","Colapse"):new GUIContent("▼","Expand"),"Label",GUILayout.Width(14)))pg.open=!pg.open;
 		EditorGUILayout.LabelField("Group Name:",GUILayout.Width(80));
 		pg.name=EditorGUILayout.TextField(pg.name);
-		if(GUILayout.Button("×",GUILayout.Width(19))){
+		if(GUILayout.Button("—",GUILayout.Width(19))){
 			remg=pg;
 		}
 		EditorGUILayout.EndHorizontal();
@@ -97,6 +120,7 @@ public class PoolManagerEditor : Editor {
 				pg.pools.Add(new Pool());
 			}
 			EditorGUILayout.EndHorizontal();
+			DropInPools(pg,GUILayoutUtility.GetLastRect(),Event.current);
 			foreach(Pool p in pg.pools)Pool (p);
 			if(rem!=null){
 				pg.pools.Remove(rem);
@@ -121,8 +145,10 @@ public class PoolManagerEditor : Editor {
 		
 	}
 	void Pool(Pool p){
-		GUI.backgroundColor=(p.prefab==null)?new Color(0.86F,0.47F,0.2F,1):new Color(0.5F,0.85F,0.5F,1);
+		Color prev=GUI.backgroundColor;
+		GUI.backgroundColor=(p.prefab==null)?new Color(0.86F,0.47F,0.2F,1):new Color(0.5F,(p.playOnSpawn)?0.9f:0.70f,0.5F,1);
 		EditorGUILayout.BeginVertical("Box");
+		GUI.backgroundColor=new Color(1,1,1,0.7F);
 		EditorGUILayout.BeginHorizontal();
 		if(GUILayout.Button("≡","Label",GUILayout.Width(14))){
 			PoolManager.Spawn(p.name,PoolManager.instanceT);
@@ -144,26 +170,11 @@ public class PoolManagerEditor : Editor {
 			p.lifeTime=EditorGUILayout.FloatField(p.lifeTime,GUILayout.Width(25));
 			
 		}
-		if(GUILayout.Button("×",GUILayout.Width(19))){
+		if(GUILayout.Button("—",GUILayout.Width(19))){
 			rem=p;
 		}
 		EditorGUILayout.EndHorizontal();
-		Event evt = Event.current;
-		Rect drop_area = GUILayoutUtility.GetLastRect();
-		switch (evt.type) {
-		case EventType.DragUpdated:
-		case EventType.DragPerform:
-			if (drop_area.Contains (evt.mousePosition)){
-				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-				if (evt.type == EventType.DragPerform) {
-					DragAndDrop.AcceptDrag ();
-					p.prefab=(GameObject)DragAndDrop.objectReferences[0];
-					p.name=p.prefab.name;
-					p.layer=p.prefab.layer;
-				}
-			}
-		break;
-		} 
+		DropInPool(p,GUILayoutUtility.GetLastRect(),Event.current);
 		if(p.open){
 			EditorGUILayout.BeginVertical("Box");
 			p.name=EditorGUILayout.TextField("Pool Name",p.name);
@@ -179,6 +190,59 @@ public class PoolManagerEditor : Editor {
 			EditorGUILayout.EndVertical();
 		}
 		EditorGUILayout.EndVertical();
-		GUI.backgroundColor=Color.white;
+		GUI.backgroundColor=prev;
+	}
+	
+	void DropInPool(Pool p,Rect drop_area, Event evt){
+		switch (evt.type) {			
+		case EventType.DragUpdated:
+		case EventType.DragPerform:
+			if (drop_area.Contains (evt.mousePosition)){
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+				if (evt.type == EventType.DragPerform) {
+					DragAndDrop.AcceptDrag ();
+					p.prefab=(GameObject)DragAndDrop.objectReferences[0];
+					p.name=p.prefab.name;
+					p.layer=p.prefab.layer;
+					if(pm.autoConfig)AutoConfig(p);
+				}
+			}
+		break;
+		} 
+	}
+	void DropInPools(PoolGroup pg,Rect drop_area, Event evt){
+		switch (evt.type) {
+		case EventType.DragUpdated:
+		case EventType.DragPerform:
+			if (drop_area.Contains (evt.mousePosition)){
+			tempaddplace=(pg==null)?pm.pools:pg.pools;
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+				if (evt.type == EventType.DragPerform) {
+					DragAndDrop.AcceptDrag ();
+					tempadd.Clear ();
+					foreach(Object obj in DragAndDrop.objectReferences){
+						if(pg!=null){	
+						}
+						Pool p= new Pool((GameObject)obj,null,pm.dynamicSize,pm.dynamicMax,pm.dynamicLifeTime,false);
+						p.name=p.prefab.name;
+						p.layer=p.prefab.layer;
+						if(pm.autoConfig)AutoConfig(p);
+						tempadd.Add(p);
+					}
+				}
+			}
+		break;
+		} 
+	}
+	void AutoConfig(Pool p){
+		float maxlength=0;
+		foreach(AudioSource audioSource in p.prefab.GetComponentsInChildren<AudioSource>(true)){
+			if(!audioSource.loop && audioSource.clip!=null && audioSource.clip.length>maxlength)maxlength=audioSource.clip.length;
+		}
+		foreach(ParticleSystem ps in p.prefab.GetComponentsInChildren<ParticleSystem>(true)){
+			if(!ps.loop && ps.startLifetime>maxlength)maxlength=ps.startLifetime;
+		}
+		p.playOnSpawn=(maxlength>0)?true:false;
+		p.lifeTime=maxlength;
 	}
 }
