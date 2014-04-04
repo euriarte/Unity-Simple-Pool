@@ -67,4 +67,8 @@ public class PoolGroup{
 		}
 		return ret.ToArray();
 	}
+	public void RecicleAll(){
+		foreach(Pool p in pools)p.RecicleAll();
+		foreach(PoolGroup pg in sets)pg.RecicleAll();
+	}
 }

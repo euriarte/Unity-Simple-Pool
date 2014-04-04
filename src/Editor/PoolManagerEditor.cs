@@ -56,6 +56,7 @@ public class PoolManagerEditor : Editor {
 			pm.dynamicLifeTime=Mathf.Clamp(EditorGUILayout.FloatField("Default Life Time",pm.dynamicLifeTime),0,Mathf.Infinity);
 			if (pm.dynamicLifeTime<0.001F) EditorGUILayout.TextArea("Pooled objects will remain forever in the scene until removed by script");
 			else if (pm.dynamicLifeTime<0.5F) EditorGUILayout.TextArea("The live Time of the objects is quite short, Are you sure?");
+			pm.dynamicParent=(Transform)EditorGUILayout.ObjectField("Default Parent",pm.dynamicParent,typeof(Transform),true);
 			EditorGUILayout.EndVertical();
 			EditorGUILayout.EndHorizontal();
 		}

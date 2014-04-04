@@ -11,7 +11,6 @@ using System.Collections.Generic;
 public class PoolItem : MonoBehaviour {
 	[HideInInspector]
 	public Transform trans;
-	public bool canPlay=false;
 	private Pool parentPool;
 	public virtual void Init(Pool parent){
 		parentPool=parent;
@@ -62,18 +61,14 @@ public class PoolItem : MonoBehaviour {
 		SetActive(false);
 	}
 	protected virtual void SetActive(bool active){ 
-		Debug.Log(active+"__"+canPlay+"__"+parentPool.playOnSpawn);
-		if(!active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop",SendMessageOptions.DontRequireReceiver);
+		if(!active && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop",SendMessageOptions.DontRequireReceiver);
 		gameObject.SetActive(active);
-		if (active && canPlay && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play");
+		if (active && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play");
 	}
 	void CanBePlayed(){
-		int asl=GetComponentsInChildren<AudioSource>(true).Length;
-		int psl=0;
 		bool fix=false;
 		foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true)){
 			if (ps.transform.parent.particleSystem==null ){
-				psl++;
 				if (ps.gameObject.GetComponent<PoolParticleHelper>()==null){
 					ps.gameObject.AddComponent<PoolParticleHelper>();
 					fix=true;
@@ -86,7 +81,5 @@ public class PoolItem : MonoBehaviour {
 			Debug.Log ("The prefab "+ name +" seems to be misconfigured tried to fix, ensure that the particle systems had a PoolParticleHelper component in their root");
 #endif
 		}
-		//parentPool.isChecked=true;
-		if(psl>0 || asl>0)canPlay=true;
 	}
 }

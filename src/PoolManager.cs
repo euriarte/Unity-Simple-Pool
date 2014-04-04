@@ -32,6 +32,7 @@ public class PoolManager : MonoBehaviour {
 	public int dynamicSize;
 	public int dynamicMax;
 	public float dynamicLifeTime;
+	public Transform dynamicParent;
 	public bool stackPools;
 	public static bool started{get; private set;}
 
@@ -66,6 +67,7 @@ public class PoolManager : MonoBehaviour {
 		}
 		if (destroy)Destroy(this);
 		else started=true;
+		if(dynamicParent==null)dynamicParent=instanceT;
 	}
 	public Pool CreatePool(){
 		p = new Pool ();
@@ -145,7 +147,7 @@ public class PoolManager : MonoBehaviour {
 					}
 					counter++;
 				}
-				CreatePool(poolName,prefab,instance.transform,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
+				CreatePool(poolName,prefab,instance.dynamicParent,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
 			}
 			return Spawn(poolName,position,rotation);
 		}
@@ -183,5 +185,12 @@ public class PoolManager : MonoBehaviour {
 	}
 	public static PoolItem[] SpawnSet(string groupName, Vector3 position, Quaternion rotation){
 		return (poolGroup.ContainsKey(groupName))?poolGroup[groupName].SpawnSet(position,rotation):null;
+	}
+	public static void ReciclePool(string poolName){
+		if(pool.ContainsKey(poolName))pool[poolName].RecicleAll();	
+	}
+	public static void RecicleAll(){
+		foreach (KeyValuePair<string,Pool> p in pool)p.Value.RecicleAll();	
+		foreach (KeyValuePair<string,PoolGroup>pg in poolGroup)pg.Value.RecicleAll();
 	}
 }

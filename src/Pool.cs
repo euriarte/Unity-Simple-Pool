@@ -86,7 +86,6 @@ public class Pool {
 		if(PoolManager.instance.populateOnStart && !PoolManager.started){
 			while(items.Count<size)	AddItem();
 		}
-		
 		return true;
 	}
 	public void ReParent(Transform transform){
@@ -96,6 +95,9 @@ public class Pool {
 	public void ReParent(){
 		parent=PoolManager.instanceT;
 		foreach(PoolItem p in items)ReParent();
+	}
+	public void RecicleAll(){
+		for(int i=spawnedItems.Count-1;i>=0;i--)spawnedItems[i].Recycle();	
 	}
 	public void Recicle(PoolItem poolItem){
 		if(!items.Contains(poolItem))return;
