@@ -63,12 +63,12 @@ public class PoolItem : MonoBehaviour {
 	protected virtual void SetActive(bool active){ 
 		if(!active && parentPool.playOnSpawn) gameObject.BroadcastMessage("Stop",SendMessageOptions.DontRequireReceiver);
 		gameObject.SetActive(active);
-		if (active && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play");
+		if (active && parentPool.playOnSpawn) gameObject.BroadcastMessage("Play",SendMessageOptions.DontRequireReceiver);
 	}
 	void CanBePlayed(){
 		bool fix=false;
 		foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true)){
-			if (ps.transform.parent.particleSystem==null ){
+			if (ps.transform.parent==null || ps.transform.parent.particleSystem==null ){
 				if (ps.gameObject.GetComponent<PoolParticleHelper>()==null){
 					ps.gameObject.AddComponent<PoolParticleHelper>();
 					fix=true;

@@ -106,33 +106,70 @@ public class PoolManager : MonoBehaviour {
 		}
 		return null;
 	}
-	/// <summary>
-	/// Spawn item from the specified poolName at transform.
-	/// </summary>
+	/// <summary>Gets the pool by name.</summary>
+	/// <returns>The pool.</returns>
+	/// <param name="poolName">Pool name.</param>
+	public Pool GetPool(string poolName){
+		if (pool.ContainsKey(poolName))return pool[poolName];
+		return null;
+	}
+	/// <summary>Gets the pool group by name.</summary>
+	/// <returns>The pool group.</returns>
+	/// <param name="PoolGroupName">Pool group name. </param>
+	public PoolGroup GetPoolGroup(string PoolGroupName){
+		if (poolGroup.ContainsKey(PoolGroupName))return poolGroup[PoolGroupName];
+		return null;
+	}
+	/// <summary>Spawn item from the specified poolName at prefab defaults.</summary>
+	/// <returns>The spawned PoolItem.</returns>
+	/// <param name="poolName">Pool name.</param>
+	public static PoolItem Spawn(string poolName){
+		if (pool.ContainsKey(poolName)){
+			return Spawn(poolName,pool[poolName].prefab.transform.position,pool[poolName].prefab.transform.rotation);	
+		}
+		return null;
+	}
+	/// <summary>Spawn item from the specified poolName at transform.</summary>
+	/// <returns>The spawned PoolItem.</returns>
 	/// <param name="poolName">Pool name.</param>
 	/// <param name="trans">Transform </param>
 	public static PoolItem Spawn(string poolName,Transform trans){
 		return Spawn(poolName,trans.position,trans.rotation);
 	}
+	/// <summary>Spawn item from the specified poolName at position.</summary>
+	/// <returns>The spawned PoolItem.</returns>
+	/// <param name="poolName">Pool name.</param>
+	/// <param name="position">Position.</param>
 	public static PoolItem Spawn(string poolName,Vector3 position){
 		return Spawn(poolName,position,Quaternion.identity);
 	}
-	/// <summary>
-	/// Spawn item from the specified poolName, at position and rotation.
-	/// </summary>
+	/// <summary>Spawn item from the specified poolName, at position and rotation.</summary>
+	/// <returns>The spawned PoolItem.</returns>
 	/// <param name="poolName">Pool name.</param>
 	/// <param name="position">Position.</param>
 	/// <param name="rotation">Rotation.</param>
 	public static PoolItem Spawn(string poolName, Vector3 position,Quaternion rotation){
 		return (pool.ContainsKey(poolName))?pool[poolName].Spawn(position,rotation):null;
 	}
-	
+	/// <summary>Spawn the specified prefab at transform (if dynamic pool is enabled).</summary>
+	/// <returns>The spawned PoolItem.</returns>
+	/// <param name="prefab">Prefab.</param>
+	/// <param name="trans">Transform.</param>
 	public static PoolItem Spawn(GameObject prefab, Transform trans){
 		return Spawn(prefab,trans.position,trans.rotation);
 	}
+	/// <summary>Spawn the specified prefab at position (if dynamic pool is enabled).</summary>
+	/// <returns>The spawned PoolItem.</returns>
+	/// <param name="prefab">Prefab.</param>
+	/// <param name="position">Position.</param>
 	public static PoolItem Spawn(GameObject prefab, Vector3 position){
 		return Spawn(prefab,position,Quaternion.identity);
 	}
+	/// <summary>Spawn the specified prefab at position and rotation (if dynamic pool is enabled).</summary>
+	/// <returns>The spawned PoolItem.</returns>
+	/// <param name="prefab">Prefab.</param>
+	/// <param name="position">Position.</param>
+	/// <param name="rotation">Rotation.</param>
 	public static PoolItem Spawn(GameObject prefab, Vector3 position,Quaternion rotation){
 		if(instance.dynamic)	{
 			string poolName="";
@@ -156,23 +193,47 @@ public class PoolManager : MonoBehaviour {
 #endif
 		return null;
 	}
-	
-	public static PoolItem[] SpawnGroup(string groupName, Transform transform){
-		return SpawnGroup(groupName, transform.position,transform.rotation);
+	/// <summary>Spawns the group at transform.</summary>
+	/// <returns>The group items.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="trans">Transform.</param>
+	public static PoolItem[] SpawnGroup(string groupName, Transform trans){
+		return SpawnGroup(groupName, trans.position,trans.rotation);
 	}
+	/// <summary>Spawns the group at position.</summary>
+	/// <returns>The group items.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="position">Position.</param>
 	public static PoolItem[] SpawnGroup(string groupName, Vector3 position){
 		return SpawnGroup(groupName, position,Quaternion.identity);
 	}
+	/// <summary>Spawns the group at position and rotation.</summary>
+	/// <returns>The group items.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="position">Position.</param>
+	/// <param name="rotation">Rotation.</param>
 	public static PoolItem[] SpawnGroup(string groupName, Vector3 position, Quaternion rotation){
 		return (poolGroup.ContainsKey(groupName))?poolGroup[groupName].Spawn(position,rotation):null;
 	}
-	
-	public static PoolItem SpawnRandom(string groupName, Transform transform){
-		return SpawnRandom(groupName,transform.position,transform.rotation);		
+	/// <summary>Spawns a random item from the group.</summary>
+	/// <returns>A random item.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="trans">Transform.</param>
+	public static PoolItem SpawnRandom(string groupName, Transform trans){
+		return SpawnRandom(groupName,trans.position,trans.rotation);		
 	}
+	/// <summary>Spawns a random item from the group.</summary>
+	/// <returns>A random item.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="position">Position.</param>
 	public static PoolItem SpawnRandom(string groupName, Vector3 position){
 		return SpawnRandom(groupName,position,Quaternion.identity);		
 	}
+	/// <summary>Spawns a random item from the group.</summary>
+	/// <returns>A random item.</returns>
+	/// <param name="groupName">Group name.</param>
+	/// <param name="position">Position.</param>
+	/// <param name="rotation">Rotation.</param>
 	public static PoolItem SpawnRandom(string groupname,Vector3 position, Quaternion rotation){
 		return (poolGroup.ContainsKey(groupname))?poolGroup[groupname].SpawnRandom(position,rotation):null;
 	}
@@ -186,9 +247,12 @@ public class PoolManager : MonoBehaviour {
 	public static PoolItem[] SpawnSet(string groupName, Vector3 position, Quaternion rotation){
 		return (poolGroup.ContainsKey(groupName))?poolGroup[groupName].SpawnSet(position,rotation):null;
 	}
+	/// <summary>Recicles a pool by name.</summary>
+	/// <param name="poolName">Pool name.</param>
 	public static void ReciclePool(string poolName){
 		if(pool.ContainsKey(poolName))pool[poolName].RecicleAll();	
 	}
+	/// <summary>Recicles all the system.</summary>
 	public static void RecicleAll(){
 		foreach (KeyValuePair<string,Pool> p in pool)p.Value.RecicleAll();	
 		foreach (KeyValuePair<string,PoolGroup>pg in poolGroup)pg.Value.RecicleAll();

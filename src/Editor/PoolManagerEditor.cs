@@ -240,9 +240,15 @@ public class PoolManagerEditor : Editor {
 		foreach(AudioSource audioSource in p.prefab.GetComponentsInChildren<AudioSource>(true)){
 			if(!audioSource.loop && audioSource.clip!=null && audioSource.clip.length>maxlength)maxlength=audioSource.clip.length;
 		}
+		Debug.Log(maxlength);
 		foreach(ParticleSystem ps in p.prefab.GetComponentsInChildren<ParticleSystem>(true)){
-			if(!ps.loop && ps.startLifetime>maxlength)maxlength=ps.startLifetime;
+			if (!ps.loop){
+				SerializedObject so = new SerializedObject(ps);
+				float time=so.FindProperty("InitialModule.startLifetime.scalar").floatValue;
+				if(time>maxlength)maxlength=time;
+			}
 		}
+		if(maxlength==Mathf.Infinity)maxlength=0;
 		p.playOnSpawn=(maxlength>0)?true:false;
 		p.lifeTime=maxlength;
 	}
