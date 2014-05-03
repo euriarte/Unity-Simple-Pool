@@ -114,6 +114,7 @@ public class Pool {
 			p.Init(this);
 			if(hideInHierarchy) p.gameObject.hideFlags=HideFlags.HideInHierarchy;
 			p.transform.parent=parent;
+			p.transform.localScale=prefab.transform.localScale;
 		}
 	}
 	public PoolItem Spawn (Vector3 position, Quaternion rotation){

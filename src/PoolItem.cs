@@ -21,11 +21,18 @@ public class PoolItem : MonoBehaviour {
 		parentPool.pooledItems.Add(this);
 		SetActive(false);
 	}
-	public void ReParent(){
-		trans.parent=(parentPool.parent!=null)?parentPool.parent:PoolManager.instanceT;
+	public void ReParent(){	
+		ReParent (false);
 	}
-	public void ReParent(Transform transform){
+	public void ReParent(bool resize){	
+		ReParent((parentPool.parent!=null)?parentPool.parent:PoolManager.instanceT,resize);
+	}
+	public void ReParent(Transform transform){	
+		ReParent(transform,false);
+	}
+	public void ReParent(Transform transform, bool resize){
 		trans.parent=transform;
+		if(parentPool!=null && resize)trans.localScale=parentPool.prefab.transform.localScale;
 	}
 	public virtual void Spawn(float lifeTime,Vector3 position,Quaternion rotation){
 		trans.position=position;

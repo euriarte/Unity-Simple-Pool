@@ -45,7 +45,7 @@ public class PoolManagerEditor : Editor {
 		pm.hideInHierarchy=EditorGUILayout.Toggle("Hide in Hierarchy",pm.hideInHierarchy);
 		pm.persistent=EditorGUILayout.Toggle("Dont Destroy On Load",pm.persistent);
 		pm.stackPools=EditorGUILayout.Toggle("Stack Pools",pm.stackPools);
-		pm.dynamic=EditorGUILayout.Toggle("Dynamic Pool",pm.dynamic);
+		pm.dynamic=EditorGUILayout.Foldout(pm.dynamic,"Default Values");
 		if(pm.dynamic){
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.Space();
