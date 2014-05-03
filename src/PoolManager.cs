@@ -29,8 +29,8 @@ public class PoolManager : MonoBehaviour {
 	public bool populateOnStart;
 	public bool dynamic;
 	public bool autoConfig=true;
-	public int dynamicSize;
-	public int dynamicMax;
+	public int dynamicSize=10;
+	public int dynamicMax=30;
 	public float dynamicLifeTime;
 	public Transform dynamicParent;
 	public bool stackPools;
@@ -38,7 +38,7 @@ public class PoolManager : MonoBehaviour {
 
 	static Pool p;
 
-	void Start () {
+	void Awake () {
 		bool destroy=false;
 		if (instance==null){
 			instanceT=transform;
@@ -170,28 +170,28 @@ public class PoolManager : MonoBehaviour {
 	/// <param name="prefab">Prefab.</param>
 	/// <param name="position">Position.</param>
 	/// <param name="rotation">Rotation.</param>
-	public static PoolItem Spawn(GameObject prefab, Vector3 position,Quaternion rotation){
-		if(instance.dynamic)	{
-			string poolName="";
-			if (dynamicIndex.ContainsKey(prefab))poolName=dynamicIndex[prefab];
-			else {
-				string sub="";
-				int counter=0;
-				while (string.IsNullOrEmpty(sub)){
-					if (!pool.ContainsKey(prefab.name+counter.ToString())){
-						sub=counter.ToString();
-						poolName=prefab.name+sub;
-					}
-					counter++;
-				}
-				CreatePool(poolName,prefab,instance.dynamicParent,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
-			}
-			return Spawn(poolName,position,rotation);
+	public static PoolItem Spawn(GameObject prefab, Vector3 position,Quaternion rotation){	
+		if(!instance){
+			PoolManager temp= new GameObject("Pool").AddComponent<PoolManager>();
+			temp.recyclable=true;
 		}
-#if UNITY_EDITOR
-		Debug.LogWarning("Dynamic pool is disabled");
-#endif
-		return null;
+		
+		string poolName="";
+		if (dynamicIndex.ContainsKey(prefab))poolName=dynamicIndex[prefab];
+		else {
+			string sub="";
+			int counter=0;
+			while (string.IsNullOrEmpty(sub)){
+				if (!pool.ContainsKey(prefab.name+counter.ToString())){
+					sub=counter.ToString();
+					poolName=prefab.name+sub;
+				}
+				counter++;
+			}
+			dynamicIndex.Add(prefab,poolName);
+			CreatePool(poolName,prefab,instance.dynamicParent,instance.dynamicSize,instance.dynamicMax,instance.dynamicLifeTime,true);
+		}
+			return Spawn(poolName,position,rotation);
 	}
 	/// <summary>Spawns the group at transform.</summary>
 	/// <returns>The group items.</returns>
