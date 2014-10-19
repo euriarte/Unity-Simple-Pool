@@ -82,19 +82,22 @@ public class Pool {
 		isChecked=false;
 		if(prefab==null)return false;
 		if(string.IsNullOrEmpty(name))name=prefab.name;
-		if(parent==null)parent=PoolManager.instanceT;
+		ReParent(parent);
 		if(PoolManager.instance.populateOnStart && !PoolManager.started){
 			while(items.Count<size)	AddItem();
 		}
 		return true;
 	}
 	public void ReParent(Transform transform){
-		parent=transform;
-		foreach(PoolItem p in items)ReParent (transform);
+		if(transform==null)ReParent ();
+		else{
+			parent=transform;
+			foreach(PoolItem p in items)p.ReParent (transform);
+		}
 	}
 	public void ReParent(){
 		parent=PoolManager.instanceT;
-		foreach(PoolItem p in items)ReParent();
+		foreach(PoolItem p in items)p.ReParent();
 	}
 	public void RecicleAll(){
 		for(int i=spawnedItems.Count-1;i>=0;i--)spawnedItems[i].Recycle();	

@@ -48,9 +48,14 @@ public class PoolManager : MonoBehaviour {
 		else destroy=true;
 		foreach(Pool p in pools){
 			if(p.prefab!=null){
-				if(p.parent==null)p.parent=transform;
-				p.Init();
-				if(!string.IsNullOrEmpty(p.name) && !pool.ContainsKey(p.name))pool.Add (p.name,p);
+				if(!string.IsNullOrEmpty(p.name)){
+					if(pool.ContainsKey(p.name) && pool[p.name].prefab==p.prefab && pool[p.name].parent!=p.parent)
+						pool[p.name].ReParent(p.parent);
+					if(!pool.ContainsKey(p.name)){
+						pool.Add (p.name,p);
+						p.Init();
+					}
+				}
 			}
 			else Debug.LogWarning("A Pool in "+name+" doesn't have a prefab assigned, Skipped!");
 		}
