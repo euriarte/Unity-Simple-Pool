@@ -31,7 +31,11 @@ public class PoolItem : MonoBehaviour {
 		ReParent(transform,false);
 	}
 	public void ReParent(Transform transform, bool resize){
+		#if(UNITY_3_0 || UNITY_3_0_0 || UNITY_3_1 || UNITY_3_2 || UNITY_3_3 || UNITY_3_4 || UNITY_3_5)
+		trans.parent=transform;
+		#else	
 		trans.SetParent(transform,false);
+		#endif
 		if(parentPool!=null && resize)trans.localScale=parentPool.prefab.transform.localScale;
 	}
 	public virtual void Spawn(float lifeTime,Vector3 position,Quaternion rotation){
